@@ -18,27 +18,27 @@ class pet =
                     ^ " hygiene: " ^ (string_of_int _hygiene) ^ "/100,"
                     ^ " happy: " ^ (string_of_int _happy) ^ "/100"
 
-  method eat =
+  method eat () =
     _health <- (self#add _health 25);
     _energy <- (self#sub _energy 10);
     _hygiene <- (self#sub _hygiene 20);
     _happy <- (self#add _happy 5)
 
 
-  method thunder =
+  method thunder () =
     _health <- (self#sub _health 20);
     _energy <- (self#add _energy 25);
     _happy <- (self#sub _happy 20)
 
 
-  method bath =
+  method bath () =
     _health <- (self#sub _health 20);
     _energy <- (self#sub _energy 10);
     _hygiene <- (self#add _hygiene 25);
     _happy <- (self#add _happy 5)
 
 
-  method kill =
+  method kill () =
     _health <- (self#sub _health 20);
     _energy <- (self#sub _energy 10);
     _happy <- (self#add _happy 20)

@@ -16,6 +16,7 @@ class ui (pet: Pet.pet) =
 
     method init =
       ignore (GtkMain.Main.init ());
+
       window <- GWindow.window ~border_width:10 ~width:250 ~height:200 ~title:"Instant Tama" ~resizable:false ~position:`CENTER ();
       dialog <- GWindow.dialog ~parent:window ~destroy_with_parent:true ~border_width:10 ~width:250 ~height:100 ~modal:true ~show:false ~resizable:false ();
       vbox <- GPack.vbox ~packing:window#add ();
@@ -65,10 +66,20 @@ class ui (pet: Pet.pet) =
       let button_thunder = GButton.button ~label:"THUNDER" ~packing:bbox#add () in
       let button_bath = GButton.button ~label:"BATH" ~packing:bbox#add () in
       let button_kill = GButton.button ~label: "KILL" ~packing:bbox#add () in
-      ignore (button_eat#connect#clicked     ~callback: ((fun () -> if _action = false then begin _action <- true; (self#anim [button_eat; button_thunder; button_bath; button_kill]); pet#eat;     self#drawImage ((pet#get_sprite "eat"));     self#refresh end)));
-      ignore (button_thunder#connect#clicked ~callback: ((fun () -> if _action = false then begin _action <- true; (self#anim [button_eat; button_thunder; button_bath; button_kill]); pet#thunder; self#drawImage ((pet#get_sprite "thunder")); self#refresh end)));
-      ignore (button_bath#connect#clicked    ~callback: ((fun () -> if _action = false then begin _action <- true; (self#anim [button_eat; button_thunder; button_bath; button_kill]); pet#bath;    self#drawImage ((pet#get_sprite "bath"));    self#refresh end)));
-      ignore (button_kill#connect#clicked    ~callback: ((fun () -> if _action = false then begin _action <- true; (self#anim [button_eat; button_thunder; button_bath; button_kill]); pet#kill;    self#drawImage ((pet#get_sprite "kill"));    self#refresh end)));
+
+      let actionCallback action (actionName: string) = fun () -> if _action = false then
+        begin
+          _action <- true;
+          self#anim [button_eat; button_thunder; button_bath; button_kill];
+          action();
+          self#drawImage (pet#get_sprite actionName);
+          self#refresh
+        end
+      in
+      ignore (button_eat#connect#clicked     ~callback: (actionCallback pet#eat "eat"));
+      ignore (button_thunder#connect#clicked ~callback: (actionCallback pet#thunder "thunder"));
+      ignore (button_bath#connect#clicked    ~callback: (actionCallback pet#bath "bath"));
+      ignore (button_kill#connect#clicked    ~callback: (actionCallback pet#kill "kill"));
 
 
     method anim btns =
