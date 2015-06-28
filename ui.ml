@@ -2,6 +2,7 @@ class ui (pet: Pet.pet) =
   object (self)
 
     val mutable window          = GWindow.window ()
+	val mutable dialog			= GWindow.dialog ()
     val mutable vbox            = GPack.vbox ()
     val mutable sbox            = GPack.hbox ()
     val mutable pbox            = GPack.hbox ()
@@ -16,12 +17,20 @@ class ui (pet: Pet.pet) =
 
       ignore (GtkMain.Main.init ());
       window <- GWindow.window ~border_width:10
+					~resizable:false
                     ~width:250
                     ~height:200
                     ~title:"Instant Tama" ();
+	  dialog <- GWindow.dialog ~parent:window ~destroy_with_parent:true ~border_width:10 ~width:250 ~height:100 ~modal:true ~show:false ~resizable:false ();
       vbox <- GPack.vbox ~packing:window#add ();
       sbox <- GPack.hbox ~packing:vbox#add ();
       pbox <- GPack.hbox ~height:100 ~width:250 ~packing:vbox#add ();
+
+	  let continueButton = GButton.button ~label:"REVIVES" ~packing:dialog#action_area#add () in
+	  let exitButton = GButton.button ~label:"QUIT" ~packing:dialog#action_area#add () in
+	  let label = GMisc.label ~text:"You killed your tama !!!" ~packing:dialog#vbox#add () in
+		ignore (continueButton#connect#clicked ~callback:(fun () -> pet#regeneration; ignore(dialog#misc#hide ())));
+		ignore (exitButton#connect#clicked ~callback:self#destroy);
 
       self#createStatBar ;
       self#createPetZone ;
@@ -86,7 +95,7 @@ class ui (pet: Pet.pet) =
       petImage <- GMisc.image ~file:link ~packing:pbox#add  ~show:true ()
 
     method refresh=
-      if pet#is_dead then self#destroy ()
+      if pet#is_dead then self#gameover ()
       else
         begin
             stat_health#set_fraction  ((float_of_int pet#get_health)  /. 100.);
@@ -95,6 +104,8 @@ class ui (pet: Pet.pet) =
             stat_happy#set_fraction   ((float_of_int pet#get_happy)   /. 100.);
         end
 
+	method gameover () =
+		ignore (dialog#show ());
 
     method loopHandler () =
       pet#decr;
