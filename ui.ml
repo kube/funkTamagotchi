@@ -28,7 +28,7 @@ class ui (pet: Pet.pet) =
 
 	  let continueButton = GButton.button ~label:"REVIVES" ~packing:dialog#action_area#add () in
 	  let exitButton = GButton.button ~label:"QUIT" ~packing:dialog#action_area#add () in
-	  let label = GMisc.label ~text:"You killed your tama !!!" ~packing:dialog#vbox#add () in
+		ignore (GMisc.label ~text:"You killed your tama !!!" ~packing:dialog#vbox#add ());
 		ignore (continueButton#connect#clicked ~callback:(fun () -> pet#regeneration; ignore(dialog#misc#hide ())));
 		ignore (exitButton#connect#clicked ~callback:self#destroy);
 
@@ -70,21 +70,28 @@ class ui (pet: Pet.pet) =
       let button_thunder = GButton.button ~label:"THUNDER" ~packing:bbox#add () in
       let button_bath = GButton.button ~label:"BATH" ~packing:bbox#add () in
       let button_kill = GButton.button ~label: "KILL" ~packing:bbox#add () in
-      ignore (button_eat#connect#clicked     ~callback: ((fun () -> if _action = false then begin _action <- true; self#anim; pet#eat;     self#drawImage ((pet#get_sprite "eat"));     self#refresh end)));
-      ignore (button_thunder#connect#clicked ~callback: ((fun () -> if _action = false then begin _action <- true; self#anim; pet#thunder; self#drawImage ((pet#get_sprite "thunder")); self#refresh end)));
-      ignore (button_bath#connect#clicked    ~callback: ((fun () -> if _action = false then begin _action <- true; self#anim; pet#bath;    self#drawImage ((pet#get_sprite "bath"));    self#refresh end)));
-      ignore (button_kill#connect#clicked    ~callback: ((fun () -> if _action = false then begin _action <- true; self#anim; pet#kill;    self#drawImage ((pet#get_sprite "kill"));    self#refresh end)));
+      ignore (button_eat#connect#clicked     ~callback: ((fun () -> if _action = false then begin _action <- true; (self#anim [button_eat; button_thunder; button_bath; button_kill]); pet#eat;     self#drawImage ((pet#get_sprite "eat"));     self#refresh end)));
+      ignore (button_thunder#connect#clicked ~callback: ((fun () -> if _action = false then begin _action <- true; (self#anim [button_eat; button_thunder; button_bath; button_kill]); pet#thunder; self#drawImage ((pet#get_sprite "thunder")); self#refresh end)));
+      ignore (button_bath#connect#clicked    ~callback: ((fun () -> if _action = false then begin _action <- true; (self#anim [button_eat; button_thunder; button_bath; button_kill]); pet#bath;    self#drawImage ((pet#get_sprite "bath"));    self#refresh end)));
+      ignore (button_kill#connect#clicked    ~callback: ((fun () -> if _action = false then begin _action <- true; (self#anim [button_eat; button_thunder; button_bath; button_kill]); pet#kill;    self#drawImage ((pet#get_sprite "kill"));    self#refresh end)));
 
 
 
 
-    method anim  =
-      ignore (GMain.Timeout.add ~ms:3000 ~callback: self#end_anim); 
+    method anim btns =
+      ignore (GMain.Timeout.add ~ms:3000 ~callback:(self#end_anim btns)); 
+	  let rec loop = function
+		| []		-> ()
+		| hd::tl	-> hd#misc#set_sensitive false; loop tl
+	  in loop btns
 
-    method end_anim () =
+    method end_anim btns () =
       self#drawImage (pet#get_sprite "current");
       _action <- false;
-      false
+	  let rec loop = function
+		| []		-> false
+		| hd::tl	-> hd#misc#set_sensitive true; loop tl
+	  in loop btns
 
 
     method createPetZone =
