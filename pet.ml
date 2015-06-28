@@ -5,7 +5,6 @@ class pet =
 	val mutable _energy:int = 100
 	val mutable _hygiene:int = 100
 	val mutable _happy:int = 100
-
 	method get_health = _health
 	method get_energy = _energy
 	method get_hygiene = _hygiene
@@ -67,6 +66,13 @@ class pet =
 
 	  print_endline "Save !!"
 
+
+  method get_sprite sprite = match sprite with
+   | "eat"     -> "sprites/Kuchipatchi_anime.png"
+   | "thunder" -> ""
+   | "bath"    -> ""
+   | "kill"    -> "sprites/Kuchipatchi_ninja.png"
+   | _         -> "sprites/Kuchipatchi.PNG"
 
 	method private add a b =
 

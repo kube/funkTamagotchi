@@ -1,13 +1,16 @@
-class ui =
+class ui (pet: Pet.pet) =
   object (self)
 
     val mutable petImage = GMisc.image ()
     
-    val mutable window   = GWindow.window ()
-    val mutable vbox     = GPack.vbox ()
-    val mutable sbox     = GPack.hbox ()
-    val mutable pbox     = GPack.hbox ()
-
+    val mutable window          = GWindow.window ()
+    val mutable vbox            = GPack.vbox ()
+    val mutable sbox            = GPack.hbox ()
+    val mutable pbox            = GPack.hbox ()
+    val mutable stat_health     = GRange.progress_bar ()
+    val mutable stat_energy     = GRange.progress_bar ()
+    val mutable stat_hygiene    = GRange.progress_bar ()
+    val mutable stat_happy      = GRange.progress_bar ()
 
     method init =
 
@@ -36,15 +39,20 @@ class ui =
 
     method createStatBar =
 
-      let stat_health = GRange.progress_bar ~packing:sbox#add () in
-      let stat_energy = GRange.progress_bar ~packing:sbox#add () in
-      let stat_hygiene = GRange.progress_bar ~packing:sbox#add () in
-      let stat_happy = GRange.progress_bar ~packing:sbox#add () in
-      stat_health#set_text "HEALTH";
-      stat_energy#set_text "ENERGY";
-      stat_hygiene#set_text "HYGIENE";
-      stat_happy#set_text "HAPPY"
+      stat_health  <- GRange.progress_bar ~packing:sbox#add ();
+      stat_energy  <- GRange.progress_bar ~packing:sbox#add ();
+      stat_hygiene <- GRange.progress_bar ~packing:sbox#add ();
+      stat_happy   <- GRange.progress_bar ~packing:sbox#add ();
 
+      stat_health#set_text  "HEALTH";
+      stat_energy#set_text  "ENERGY";
+      stat_hygiene#set_text "HYGIENE";
+      stat_happy#set_text   "HAPPY";
+
+      stat_health#set_fraction ((float_of_int pet#get_health) /. 100.);
+      stat_energy#set_fraction ((float_of_int pet#get_energy) /. 100.);
+      stat_hygiene#set_fraction ((float_of_int pet#get_hygiene) /. 100.);
+      stat_happy#set_fraction ((float_of_int pet#get_happy) /. 100.);
 
     method createActionButtons =
 
@@ -55,10 +63,10 @@ class ui =
       let button_kill = GButton.button ~label: "KILL" ~packing:bbox#add () in
 
 
-      button_eat#connect#clicked ~callback:((fun () -> self#drawImage "sprites/Kuchipatchi_anime.png"));
-      button_thunder#connect#clicked ~callback:((fun () -> print_endline "OK"));
-      button_bath#connect#clicked ~callback:((fun () -> print_endline "OK"));
-      button_kill#connect#clicked ~callback:((fun () -> print_endline "OK"))
+      button_eat#connect#clicked ~callback:((fun () -> pet#eat; self#drawImage ((pet#get_sprite "eat")); self#refresh ));
+      button_thunder#connect#clicked ~callback:((fun () -> pet#thunder; print_endline "OK"; self#refresh ));
+      button_bath#connect#clicked ~callback:((fun () -> pet#bath; print_endline "OK"; self#refresh ));
+      button_kill#connect#clicked ~callback:((fun () -> pet#kill; self#drawImage ((pet#get_sprite "kill")); print_endline "OK"; self#refresh ))
 
 
     method createPetZone =
@@ -69,11 +77,16 @@ class ui =
       petImage <- GMisc.image ~file:link ~packing:pbox#add ~show:true ()
 
 
+    method refresh=
+      stat_health#set_fraction ((float_of_int pet#get_health) /. 100.);
+      stat_energy#set_fraction ((float_of_int pet#get_energy) /. 100.);
+      stat_hygiene#set_fraction ((float_of_int pet#get_hygiene) /. 100.);
+      stat_happy#set_fraction ((float_of_int pet#get_happy) /. 100.);
+
     method loopHandler () =
-
-      print_endline "Update";
+      pet#decr;
+      self#refresh;
       true
-
 
     method destroy () =
 
