@@ -17,8 +17,24 @@ class ui (pet: Pet.pet) =
     method init =
       ignore (GtkMain.Main.init ());
 
-      window <- GWindow.window ~border_width:10 ~width:250 ~height:200 ~title:"Instant Tama" ~resizable:false ~position:`CENTER ();
-      dialog <- GWindow.dialog ~parent:window ~destroy_with_parent:true ~border_width:10 ~width:250 ~height:100 ~modal:true ~show:false ~resizable:false ();
+      window <- GWindow.window
+                ~border_width: 10
+                ~width: 250
+                ~height: 200
+                ~title: "Instant Tama"
+                ~resizable: false
+                ~position: `CENTER ();
+
+      dialog <- GWindow.dialog
+                ~parent: window
+                ~destroy_with_parent: true
+                ~border_width: 10
+                ~width: 250
+                ~height: 100
+                ~modal: true
+                ~show: false
+                ~resizable: false ();
+
       vbox <- GPack.vbox ~packing:window#add ();
       sbox <- GPack.hbox ~packing:vbox#add ();
       pbox <- GPack.hbox ~height:100 ~width:250 ~packing:vbox#add ();
