@@ -53,26 +53,37 @@ class pet =
 
 
   method get_save =
-    let filename = savefile in
-    let ic = open_in filename in
-    try
-       _health <- (int_of_string (input_line ic));
-       _energy <- (int_of_string (input_line ic));
-       _hygiene <- (int_of_string (input_line ic));
-       _happy <- (int_of_string (input_line ic));
-    with
-    | End_of_file -> close_in ic;
-    | _ -> failwith "Unknown";
+    (* Check if save file exists *)
+    try begin
+
+      let ic = open_in savefile in
+      try
+        _health <- (int_of_string (input_line ic));
+        _energy <- (int_of_string (input_line ic));
+        _hygiene <- (int_of_string (input_line ic));
+        _happy <- (int_of_string (input_line ic));
+      with
+        | End_of_file -> close_in ic;
+        | _ -> failwith "Unknown"
+
+    (* If cannot find save file, start new game *)
+    end with
+      | Sys_error msg -> self#regeneration
 
 
   method save =
-    let oc = open_out savefile in
-    flush oc;
-    output_string oc (string_of_int _health  ^ "\n");
-    output_string oc (string_of_int _energy  ^ "\n");
-    output_string oc (string_of_int _hygiene ^ "\n");
-    output_string oc (string_of_int _happy   ^ "\n");
-    close_out oc;
+    try begin
+
+      let oc = open_out savefile in
+      flush oc;
+      output_string oc (string_of_int _health  ^ "\n");
+      output_string oc (string_of_int _energy  ^ "\n");
+      output_string oc (string_of_int _hygiene ^ "\n");
+      output_string oc (string_of_int _happy   ^ "\n");
+      close_out oc;
+
+    end with
+      | Sys_error msg -> print_endline ("Error while saving game data:\n" ^ msg)
 
 
   method regeneration =
