@@ -1,4 +1,4 @@
-SOURCES = pet.ml ui.ml main.ml
+SOURCES = sources/pet.ml sources/ui.ml sources/main.ml
 RESULT = funkTamagotchi
 PACKS = lablgtk2
 
