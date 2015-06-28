@@ -2,7 +2,7 @@ class ui (pet: Pet.pet) =
   object (self)
 
     val mutable window          = GWindow.window ()
-	val mutable dialog			= GWindow.dialog ()
+    val mutable dialog          = GWindow.dialog ()
     val mutable vbox            = GPack.vbox ()
     val mutable sbox            = GPack.hbox ()
     val mutable pbox            = GPack.hbox ()
@@ -13,19 +13,20 @@ class ui (pet: Pet.pet) =
     val mutable petImage        = GMisc.image ()
     val mutable _action         = false
 
+
     method init =
       ignore (GtkMain.Main.init ());
       window <- GWindow.window ~border_width:10 ~width:250 ~height:200 ~title:"Instant Tama" ~resizable:false ~position:`CENTER ();
-	  dialog <- GWindow.dialog ~parent:window ~destroy_with_parent:true ~border_width:10 ~width:250 ~height:100 ~modal:true ~show:false ~resizable:false ();
+      dialog <- GWindow.dialog ~parent:window ~destroy_with_parent:true ~border_width:10 ~width:250 ~height:100 ~modal:true ~show:false ~resizable:false ();
       vbox <- GPack.vbox ~packing:window#add ();
       sbox <- GPack.hbox ~packing:vbox#add ();
       pbox <- GPack.hbox ~height:100 ~width:250 ~packing:vbox#add ();
 
-	  let continueButton = GButton.button ~label:"REVIVES" ~packing:dialog#action_area#add () in
-	  let exitButton = GButton.button ~label:"QUIT" ~packing:dialog#action_area#add () in
-		ignore (GMisc.label ~text:"You killed your tama !!!" ~packing:dialog#vbox#add ());
-		ignore (continueButton#connect#clicked ~callback:(fun () -> pet#regeneration; ignore(dialog#misc#hide ())));
-		ignore (exitButton#connect#clicked ~callback:self#destroy);
+      let continueButton = GButton.button ~label:"REVIVES" ~packing:dialog#action_area#add () in
+      let exitButton = GButton.button ~label:"QUIT" ~packing:dialog#action_area#add () in
+      ignore (GMisc.label ~text:"You killed your tama !!!" ~packing:dialog#vbox#add ());
+      ignore (continueButton#connect#clicked ~callback:(fun () -> pet#regeneration; ignore(dialog#misc#hide ())));
+      ignore (exitButton#connect#clicked ~callback:self#destroy);
 
       self#createStatBar ;
       self#createPetZone ;
@@ -36,7 +37,7 @@ class ui (pet: Pet.pet) =
 
       ignore (window#connect#destroy ~callback:self#destroy);
       window#show();
-      GMain.Main.main ()
+      GMain.Main.main()
 
 
     method createStatBar =
@@ -56,6 +57,7 @@ class ui (pet: Pet.pet) =
       stat_hygiene#set_fraction ((float_of_int pet#get_hygiene) /. 100.);
       stat_happy#set_fraction ((float_of_int pet#get_happy) /. 100.);
 
+
     method createActionButtons =
 
       let bbox = GPack.hbox ~packing:vbox#add () in
@@ -69,33 +71,37 @@ class ui (pet: Pet.pet) =
       ignore (button_kill#connect#clicked    ~callback: ((fun () -> if _action = false then begin _action <- true; (self#anim [button_eat; button_thunder; button_bath; button_kill]); pet#kill;    self#drawImage ((pet#get_sprite "kill"));    self#refresh end)));
 
 
-
-
     method anim btns =
-      ignore (GMain.Timeout.add ~ms:3000 ~callback:(self#end_anim btns)); 
-	  let rec loop = function
-		| []		-> ()
-		| hd::tl	-> hd#misc#set_sensitive false; loop tl
-	  in loop btns
+      ignore (GMain.Timeout.add ~ms:3000 ~callback:(self#end_anim btns));
+
+      let rec loop = function
+        | []    -> ()
+        | hd::tl  -> hd#misc#set_sensitive false; loop tl
+      in loop btns
+
 
     method end_anim btns () =
       self#drawImage (pet#get_sprite "current");
       _action <- false;
-	  let rec loop = function
-		| []		-> false
-		| hd::tl	-> hd#misc#set_sensitive true; loop tl
-	  in loop btns
+
+      let rec loop = function
+        | []    -> false
+        | hd::tl  -> hd#misc#set_sensitive true; loop tl
+      in loop btns
 
 
     method createPetZone =
       petImage <- GMisc.image ~file:"sprites/current.gif" ~packing:pbox#add  ~show:true ()
 
-    method drawImage link = 
+
+    method drawImage link =
       petImage#clear ();
       petImage <- GMisc.image ~file:link ~packing:pbox#add  ~show:true ()
 
-    method refresh=
-      if pet#is_dead then self#gameover ()
+
+    method refresh =
+      if pet#is_dead then
+        self#gameover ()
       else
         begin
             stat_health#set_fraction  ((float_of_int pet#get_health)  /. 100.);
@@ -104,13 +110,16 @@ class ui (pet: Pet.pet) =
             stat_happy#set_fraction   ((float_of_int pet#get_happy)   /. 100.);
         end
 
-	method gameover () =
-		ignore (dialog#show ());
+
+    method gameover () =
+      ignore (dialog#show ());
+
 
     method loopHandler () =
       pet#decr;
       self#refresh;
       true
+
 
     method destroy () =
       pet#save;
