@@ -1,10 +1,13 @@
 class pet =
   object (self : 'self)
 
-	val mutable _health:int = 100
-	val mutable _energy:int = 100
+  val savefile = "save.itama"
+
+	val mutable _health:int  = 100
+	val mutable _energy:int  = 100
 	val mutable _hygiene:int = 100
-	val mutable _happy:int = 100
+	val mutable _happy:int   = 100
+
 	method get_health = _health
 	method get_energy = _energy
 	method get_hygiene = _hygiene
@@ -13,7 +16,6 @@ class pet =
 	method to_string = "Pet: health: " ^ (string_of_int _health) ^ "/100, energy: " ^ (string_of_int _energy) ^ "/100, hygiene: " ^ (string_of_int _hygiene) ^ "/100, happy: " ^ (string_of_int _happy) ^ "/100"
 
 	method eat =
-
 	  _health <- (self#add _health 25);
 	  _energy <- (self#sub _energy 10);
 	  _hygiene <- (self#sub _hygiene 20);
@@ -21,14 +23,12 @@ class pet =
 
 
 	method thunder =
-
 	  _health <- (self#sub _health 20);
 	  _energy <- (self#add _energy 25);
 	  _happy <- (self#sub _happy 20)
 
 
 	method bath =
-
 	  _health <- (self#sub _health 20);
 	  _energy <- (self#sub _energy 10);
 	  _hygiene <- (self#add _hygiene 25);
@@ -36,43 +36,51 @@ class pet =
 
 
 	method kill =
-
 	  _health <- (self#sub _health 20);
 	  _energy <- (self#sub _energy 10);
 	  _happy <- (self#add _happy 20)
 
-
-	method die =
-
-	  print_endline "Game Over !!"
-
+  method is_dead =
+     if (self#get_health = 0) || (self#get_energy = 0) ||  (self#get_hygiene = 0) || (self#get_happy = 0) then true
+     else false 
 
 	method decr =
-
 	  _health <- (self#sub _health 1)
 
-
-	method update =
-
-	  print_endline "update bars !"
-
-
-	method recover =
-
-	  print_endline "Recover !!"
-
+  method get_save =
+    let filename = savefile in
+    let ic = open_in filename in
+    try
+       _health <- (int_of_string (input_line ic));
+       _energy <- (int_of_string (input_line ic));
+       _hygiene <- (int_of_string (input_line ic));
+       _happy <- (int_of_string (input_line ic));
+    with
+    | End_of_file -> close_in ic; 
+    | _ -> failwith "Unknown";
 
 	method save =
+	  let oc = open_out savefile in
+    flush oc;
+    output_string oc (string_of_int _health  ^ "\n");
+    output_string oc (string_of_int _energy  ^ "\n");
+    output_string oc (string_of_int _hygiene ^ "\n");
+    output_string oc (string_of_int _happy   ^ "\n");
+    close_out oc;
 
-	  print_endline "Save !!"
+  method regeneration =
+    _health <- 100;
+    _energy <- 100;
+    _hygiene <- 100;
+    _happy <- 100
 
 
   method get_sprite sprite = match sprite with
-   | "eat"     -> "sprites/Kuchipatchi_anime.png"
-   | "thunder" -> ""
-   | "bath"    -> ""
-   | "kill"    -> "sprites/Kuchipatchi_ninja.png"
-   | _         -> "sprites/Kuchipatchi.PNG"
+   | "eat"     -> "sprites/eat.gif"
+   | "thunder" -> "sprites/thunder.gif"
+   | "bath"    -> "sprites/bath.gif"
+   | "kill"    -> "sprites/kill.gif"
+   | _         -> "sprites/current.gif"
 
 	method private add a b =
 
@@ -83,8 +91,7 @@ class pet =
 
 	method private sub a b =
 
-	  if a - b < 0
-    then (print_endline "Game Over !!"; self#save; exit 0; 0)
+	  if a - b < 0 then 0
 	  else a - b
 
 end
